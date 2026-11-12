@@ -40,11 +40,18 @@ jobs:
         with:
           fetch-depth: 0
       - name: Compare tracked upstream files against v3.0.0
+        # README is excluded from this blanket diff because it has moved
+        # to README.upstream (so this repo's own README.md is the only
+        # file GitHub renders as "the" readme) -- its content is checked
+        # byte-for-byte in the next step instead.
         run: |
           git fetch --tags --force
           git diff --exit-code v3.0.0 HEAD -- . \
-            ':!README.md' ':!CITATION.cff' ':!.gitattributes' \
-            ':!.gitignore' ':!tutorials' ':!.github'
+            ':!README' ':!README.md' ':!README.upstream' ':!CITATION.cff' \
+            ':!.gitattributes' ':!.gitignore' ':!tutorials' ':!.github'
+
+      - name: README.upstream must be byte-identical to v3.0.0's README
+        run: git show v3.0.0:README | cmp - README.upstream
 
   build:
     name: build (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.config }})

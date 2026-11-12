@@ -37,8 +37,9 @@ by David Kebo Houngninou. **It is not an official upstream**, and no
 patch is applied to CUDD's source — the `pristine` CI job checks every
 push against the `v3.0.0` tag to enforce that.
 
-Somenzi's own README is the file [`README`](README) at the repository
-root.
+Somenzi's own README is the file [`README.upstream`](README.upstream)
+at the repository root, kept under that name so GitHub only renders
+this file as the repository's README.
 
 ## Quick start
 
