@@ -1,0 +1,56 @@
+name: Build problem
+description: CUDD fails to configure, build, or pass its tests from a clean clone.
+labels: ["build"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing this, please check the [`build` and `legacy` CI
+        jobs](../../actions) for the same version, OS and compiler. If
+        CI builds it cleanly, say what is different about your setup.
+  - type: input
+    id: version
+    attributes:
+      label: CUDD version or tag
+      description: For example v3.0.0, v2.5.1, or a commit hash.
+      placeholder: v3.0.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Ubuntu 24.04, macOS 15, Windows 11 (MSYS2 UCRT64), ...
+    validations:
+      required: true
+  - type: input
+    id: compiler
+    attributes:
+      label: Compiler and version
+      description: Output of `gcc --version` or `clang --version`.
+      placeholder: gcc (Ubuntu 13.2.0-23ubuntu4) 13.2.0
+    validations:
+      required: true
+  - type: input
+    id: configure-options
+    attributes:
+      label: Configure options
+      description: The exact options you passed to ./configure, if any.
+      placeholder: --enable-dddmp --enable-obj --enable-shared
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands you ran, starting from `git clone`.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Relevant build or test log
+      description: Paste the error, and enough surrounding context to see where it happened.
+      render: shell
+    validations:
+      required: true

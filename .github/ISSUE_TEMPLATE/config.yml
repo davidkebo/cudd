@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/davidkebo/cudd/discussions
+    about: Use Discussions for usage questions and anything that is not a bug report.
+  - name: Tutorial questions
+    url: https://davidkebo.com/cudd/
+    about: Questions about the davidkebo.com/cudd tutorial walkthrough.

@@ -1,0 +1,33 @@
+name: Broken download
+description: A release asset or the davidkebo.com download is missing or its checksum does not match.
+labels: ["download"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: The exact link you used.
+      placeholder: https://davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Expected SHA-256
+      description: From the README downloads table or the release's SHA256SUMS file.
+    validations:
+      required: true
+  - type: input
+    id: actual
+    attributes:
+      label: Actual SHA-256
+      description: The output of `sha256sum` on the file you downloaded.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: HTTP status code, error message, or other context.
+    validations:
+      required: false
