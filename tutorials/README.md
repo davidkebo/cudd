@@ -53,7 +53,7 @@ dot -Tpng bdd/tutorial2.dot -o tutorial2.png
 
 The 2016 tutorial archives (`tutorial1.tar.gz`, `tutorial2.tar.gz`, still
 available from the
-[`tutorials-2016` release](https://github.com/davidkebo/cudd/releases/tag/tutorials-2016))
+[2016 tutorials release](https://github.com/davidkebo/cudd/releases/tag/legacy-tarballs))
 bundled a full copy of CUDD 2.4.1, including 111 compiled `.o` files and
 x86-64 executables. The sources here are ported to build against CUDD
 3.0.0 instead, with the minimum change needed to do that cleanly:
