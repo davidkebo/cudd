@@ -1,0 +1,185 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+  schedule:
+    # Monthly, so a change in GitHub's runner images is caught even
+    # without a push.
+    - cron: "0 6 1 * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Modern GCC and Clang reject implicit int (a function or variable
+  # declared without a type) by default; one of CUDD 3.0.0's own
+  # configure-time feature tests for IEEE 754 infinity still uses the
+  # old implicit-int style and otherwise fails to compile, which in
+  # turn makes one regression test fail. This does not touch any
+  # upstream file; it only affects how the test program configure
+  # itself compiles is compiled.
+  CUDD_CFLAGS: "-Wall -Wextra -g -O2 -Wno-implicit-int"
+
+jobs:
+  # Every upstream path on main must be byte-identical to the v3.0.0
+  # tag. This is the repository's core promise: it holds exactly what
+  # Fabio Somenzi released.
+  pristine:
+    name: pristine (main == v3.0.0)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Compare tracked upstream files against v3.0.0
+        run: |
+          git fetch --tags --force
+          git diff --exit-code v3.0.0 HEAD -- . \
+            ':!README.md' ':!CITATION.cff' ':!.gitattributes' \
+            ':!.gitignore' ':!tutorials' ':!.github'
+
+  build:
+    name: build (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.config }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        compiler: [gcc, clang]
+        config: ["default", "full"]
+        exclude:
+          # clang on Ubuntu and gcc on macOS are both covered already
+          # by the complementary combinations below; CUDD's own build
+          # does not depend on an exotic compiler/OS pairing, so we
+          # keep the matrix to the three combinations that matter:
+          # ubuntu+gcc, ubuntu+clang, macos+clang.
+          - os: macos-latest
+            compiler: gcc
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Select compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set configure flags for this matrix cell
+        run: |
+          if [ "${{ matrix.config }}" = "full" ]; then
+            echo "CONFIGURE_FLAGS=--enable-dddmp --enable-obj --enable-shared" >> "$GITHUB_ENV"
+          else
+            echo "CONFIGURE_FLAGS=" >> "$GITHUB_ENV"
+          fi
+
+      - name: Touch generated files
+        # Git does not preserve timestamps. Without this, make tries
+        # to rerun aclocal/automake/autoconf with the exact versions
+        # used to cut the 2015 release and fails.
+        run: touch aclocal.m4 configure Makefile.in config.h.in
+
+      - name: configure
+        run: ./configure $CONFIGURE_FLAGS CFLAGS="$CUDD_CFLAGS"
+
+      - name: make
+        run: make -j"$(getconf _NPROCESSORS_ONLN)"
+
+      - name: make check
+        run: make check
+
+      - name: Tree must be unmodified after building
+        run: git status --porcelain --ignored=no | tee /tmp/status.txt && test ! -s /tmp/status.txt
+
+  tutorials:
+    name: tutorials
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Touch generated files
+        run: touch aclocal.m4 configure Makefile.in config.h.in
+
+      - name: Build and install CUDD
+        run: |
+          ./configure --prefix="$HOME/cudd-install" CFLAGS="$CUDD_CFLAGS"
+          make -j"$(getconf _NPROCESSORS_ONLN)"
+          make install
+
+      - name: Build and run the tutorials
+        run: |
+          cd tutorials
+          make CUDD="$HOME/cudd-install" run
+
+      - name: Validate the DOT output
+        run: |
+          dot -Tsvg tutorials/bdd/tutorial1.dot -o /tmp/tutorial1.svg
+          dot -Tsvg tutorials/bdd/tutorial2.dot -o /tmp/tutorial2.svg
+          test -s /tmp/tutorial1.svg
+          test -s /tmp/tutorial2.svg
+
+  # Not required: MSYS2/mingw support is best-effort.
+  windows:
+    name: windows (MSYS2 UCRT64)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-autotools
+
+      - name: Touch generated files
+        shell: msys2 {0}
+        run: touch aclocal.m4 configure Makefile.in config.h.in
+
+      - name: configure, make, make check
+        shell: msys2 {0}
+        run: |
+          ./configure CFLAGS="$CUDD_CFLAGS"
+          make -j"$(nproc)"
+          make check
+
+  # Not required: the 2.x series is kept for history, not actively
+  # supported. Each version is built the way its own README documents.
+  legacy:
+    name: legacy (${{ matrix.tag }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: [v2.5.1, v2.5.0, v2.4.2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.tag }}
+
+      - name: Build (README-documented steps)
+        run: |
+          make CC=gcc ICFLAGS="-g -O2 -Wno-implicit-int"
