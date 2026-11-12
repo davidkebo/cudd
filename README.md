@@ -6,7 +6,6 @@ diagrams (ZDDs), written by Fabio Somenzi at the University of
 Colorado at Boulder.
 
 [![build](https://github.com/davidkebo/cudd/actions/workflows/build.yml/badge.svg)](https://github.com/davidkebo/cudd/actions/workflows/build.yml)
-[![docs](https://github.com/davidkebo/cudd/actions/workflows/docs.yml/badge.svg)](https://github.com/davidkebo/cudd/actions/workflows/docs.yml)
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/davidkebo/cudd)](https://github.com/davidkebo/cudd/releases/latest)
 
@@ -84,15 +83,6 @@ One note for modern compilers: GCC 14+ and recent Clang reject
 one regression test. CI and the commands above work around this with
 `CFLAGS=-Wno-implicit-int`; this is a build flag, not a source change.
 
-## Documentation
-
-The CUDD user manual and API reference, rebuilt from this source and
-published on GitHub Pages:
-
-- [Documentation site](https://davidkebo.github.io/cudd/)
-- [User manual (PDF)](https://davidkebo.github.io/cudd/cudd.pdf)
-- [API reference (Doxygen)](https://davidkebo.github.io/cudd/api/)
-
 ## Downloads
 
 | Release | Archive | Size | SHA-256 |
@@ -152,23 +142,6 @@ CUDD 2.4.1 copies with 111 prebuilt `.o` files and x86-64 binaries),
 which are still available as a release download if you need them. See
 [davidkebo.com/cudd](https://davidkebo.com/cudd/) for the tutorial
 write-up.
-
-## Related projects
-
-- [davidkebo/ddcal](https://github.com/davidkebo/ddcal) — DDcal, a BDD calculator built on CUDD
-- [cuddorg/cudd](https://github.com/cuddorg/cudd) — a maintained fork with patches and portability fixes
-- [ssoelvsten/cudd](https://github.com/ssoelvsten/cudd) — another maintained, patched fork
-- [tulip-control/dd](https://github.com/tulip-control/dd) — a pure-Python/Cython BDD library inspired by CUDD
-
-## Packaged by
-
-- [Gentoo](https://packages.gentoo.org/packages/sci-mathematics/cudd) (`sci-mathematics/cudd`)
-- [Julia `CUDD_jll`](https://github.com/JuliaBinaryWrappers/CUDD_jll.jl)
-- [OpenROAD](https://github.com/The-OpenROAD-Project/cudd)
-
-All three currently fetch `cudd-3.0.0.tar.gz` by URL and check it by
-SHA-256; the file is unchanged, and remains available both as a
-release asset here and at davidkebo.com's download path.
 
 ## Citing CUDD
 
