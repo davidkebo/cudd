@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: >-
+  If you use CUDD, please cite the software itself, below. This
+  repository (davidkebo/cudd) holds Fabio Somenzi's unmodified CUDD
+  releases, maintained by David Kebo Houngninou; it is not an
+  official upstream and does not patch CUDD's source.
+title: "CUDD: CU Decision Diagram Package"
+version: 3.0.0
+date-released: "2015-12-31"
+abstract: >-
+  CUDD is a C library for the manipulation of binary decision
+  diagrams (BDDs), algebraic decision diagrams (ADDs) and
+  zero-suppressed binary decision diagrams (ZDDs). It includes the
+  dddmp decision-diagram serialization library, a C++ wrapper, and
+  the nanotrav demonstration program.
+authors:
+  - family-names: Somenzi
+    given-names: Fabio
+    affiliation: University of Colorado at Boulder
+license: BSD-3-Clause
+repository-code: "https://github.com/davidkebo/cudd"
+url: "https://github.com/davidkebo/cudd"
+keywords:
+  - binary decision diagrams
+  - BDD
+  - ADD
+  - ZDD
+  - decision diagrams
+  - formal verification
+  - model checking
+  - logic synthesis
