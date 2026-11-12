@@ -1,10 +1,9 @@
 # Security policy
 
-## CUDD is no longer maintained upstream
+## This repository does not patch CUDD's source
 
-Fabio Somenzi stopped maintaining CUDD after 3.0.0 (2015). This
-repository distributes his releases unmodified; it does not patch
-CUDD's source, including for security fixes. See
+This repository distributes Fabio Somenzi's CUDD releases unmodified;
+it does not patch CUDD's source, including for security fixes. See
 [`CONTRIBUTING.md`](CONTRIBUTING.md) for why, and for forks that do
 carry patches.
 

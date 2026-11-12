@@ -26,9 +26,9 @@ and many research tools. The package bundles:
 
 ## About this repository
 
-Fabio Somenzi no longer maintains CUDD. The last release is 3.0.0,
-from 2015, and the original distribution site
-(vlsi.colorado.edu/~fabio) and its documentation are offline.
+CUDD's last release was 3.0.0, in 2015. Its original distribution
+site (vlsi.colorado.edu/~fabio) and documentation are no longer
+reachable.
 
 This repository holds Somenzi's releases unmodified: each version
 (2.4.2, 2.5.0, 2.5.1, 3.0.0) is one tagged commit, so `git diff
