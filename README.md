@@ -102,7 +102,7 @@ published on GitHub Pages:
 | 2.4.2 | [cudd-2.4.2.tar.gz](https://github.com/davidkebo/cudd/releases/download/v2.4.2/cudd-2.4.2.tar.gz) | 1,121,873 bytes | `9dd7c9926258e2557bbd61328d0e685b7ac508af300cc54175b5dec8138a7175` |
 
 The 2016 tutorial tarballs (superseded by [`tutorials/`](tutorials/))
-are kept on the [`tutorials-2016` release](https://github.com/davidkebo/cudd/releases/tag/tutorials-2016).
+are kept on the [`tutorials-2016` release](https://github.com/davidkebo/cudd/releases/tag/legacy-tarballs).
 
 **Verify a download:**
 
@@ -139,7 +139,7 @@ the (best-effort) `legacy` CI job.
 
 `legacy-tarballs` tags the commit at which this repository still held
 release tarballs instead of source (see [Downloads](#downloads) and
-the [tutorials-2016 release](https://github.com/davidkebo/cudd/releases/tag/tutorials-2016)).
+the [tutorials-2016 release](https://github.com/davidkebo/cudd/releases/tag/legacy-tarballs)).
 
 ## Tutorials
 
