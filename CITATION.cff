@@ -6,7 +6,6 @@ message: >-
   official upstream and does not patch CUDD's source.
 title: "CUDD: CU Decision Diagram Package"
 version: 3.0.0
-date-released: "2015-12-31"
 abstract: >-
   CUDD is a C library for the manipulation of binary decision
   diagrams (BDDs), algebraic decision diagrams (ADDs) and
