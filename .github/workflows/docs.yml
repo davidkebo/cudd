@@ -1,0 +1,124 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      have_pdf: ${{ steps.collect.outputs.have_pdf }}
+      have_api: ${{ steps.collect.outputs.have_api }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Doxygen and LaTeX
+        # doc/cudd.tex.in needs a standard TeX Live install with the
+        # extra packages below; these must be present before
+        # ./configure runs, since configure's detection of pdflatex
+        # and makeindex decides whether the doc/cudd.pdf target is
+        # even defined.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            doxygen \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-fonts-recommended
+
+      - name: Touch generated files
+        run: touch aclocal.m4 configure Makefile.in config.h.in
+
+      - name: configure
+        run: ./configure CFLAGS="-Wall -Wextra -g -O2 -Wno-implicit-int"
+
+      - name: Build the API reference (Doxygen)
+        id: api
+        continue-on-error: true
+        run: make html/index.html
+
+      - name: Build the user manual (PDF)
+        id: pdf
+        continue-on-error: true
+        run: make doc/cudd.pdf
+
+      - name: Assemble the site
+        id: collect
+        run: |
+          mkdir -p site
+          have_api=false
+          have_pdf=false
+          if [ -f html/index.html ]; then
+            cp -r html site/api
+            have_api=true
+          else
+            echo "::warning::Doxygen API reference did not build; publishing without it."
+          fi
+          if [ -f doc/cudd.pdf ]; then
+            cp doc/cudd.pdf site/cudd.pdf
+            have_pdf=true
+          else
+            echo "::warning::doc/cudd.pdf did not build; publishing without it."
+          fi
+          echo "have_api=$have_api" >> "$GITHUB_OUTPUT"
+          echo "have_pdf=$have_pdf" >> "$GITHUB_OUTPUT"
+
+      - name: Write index.html
+        run: |
+          cat > site/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <title>CUDD 3.0.0 documentation</title>
+          </head>
+          <body>
+          <h1>CUDD 3.0.0 documentation</h1>
+          <p>Generated unmodified from Fabio Somenzi's CUDD 3.0.0 source.</p>
+          <ul>
+          <li><a href="cudd.pdf">User manual (cudd.pdf)</a></li>
+          <li><a href="api/index.html">API reference</a></li>
+          </ul>
+          <p><a href="https://github.com/davidkebo/cudd">Back to the repository</a></p>
+          </body>
+          </html>
+          HTML
+
+      - name: Fail if neither document built
+        if: steps.collect.outputs.have_api != 'true' && steps.collect.outputs.have_pdf != 'true'
+        run: |
+          echo "::error::Neither the API reference nor the user manual built."
+          exit 1
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  deploy:
+    name: deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
