@@ -175,7 +175,6 @@ jobs:
       fail-fast: false
       matrix:
         tag: [v2.5.1, v2.5.0, v2.4.2]
-        xcflags: [""]
         include:
           # cudd-2.4.2's Makefile defaults XCFLAGS to a 32-bit-era
           # -mtune=pentium4, which modern GCC refuses for 64-bit code.
@@ -193,4 +192,4 @@ jobs:
 
       - name: Build (README-documented steps)
         run: |
-          make CC=gcc ICFLAGS="-g -O2 -Wno-implicit-int" ${{ matrix.xcflags != '' && format('XCFLAGS="{0}"', matrix.xcflags) || '' }}
+          make CC=gcc ICFLAGS="-g -O2 -Wno-implicit-int" ${{ matrix.xcflags && format('XCFLAGS="{0}"', matrix.xcflags) || '' }}
